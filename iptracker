@@ -17,7 +17,7 @@ show_banner() {
     printf "$COLOR_1  |_ _|  _ \ $COLOR_2 |_   _| __ __ _  ___| | _____ _ __\n"
     printf "$COLOR_1   | || |_) |$COLOR_2   | || '__/ _\` |/ __| |/ / _ \ '__|\n"
     printf "$COLOR_1   | ||  __/ $COLOR_2   | || | | (_| | (__|   <  __/ |\n"
-    printf "$COLOR_1  |___|_|    $COLOR_2   |_||_|  \__,_|\___|_|\_\___|_|\n"
+    printf "$COLOR_1  |___|_|    $COLOR_2   |_||_|  \__,_|\___|_|\_\___|_| $COLOR_1[${COLOR_0}v1.0$COLOR_1]\n"
 
     printf "$COLOR_0 \n  Created by: deadrabbit404\n \n"
 }

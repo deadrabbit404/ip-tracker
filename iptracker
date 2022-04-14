@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+# iptracker
+#
+# Description: 
+#    A tool to track and gather ip
+#    information and geolocation
+#
+# Created by: DeadRabbit
+# Telegram: t.me/deadrabbit404
+# Github: github.com/deadrabbit404
+
+
+show_banner() {
+    [[ -n $TERM ]] && clear
+    printf "$COLOR_1   ___ ____  $COLOR_2  _____               _\n"
+    printf "$COLOR_1  |_ _|  _ \ $COLOR_2 |_   _| __ __ _  ___| | _____ _ __\n"
+    printf "$COLOR_1   | || |_) |$COLOR_2   | || '__/ _\` |/ __| |/ / _ \ '__|\n"
+    printf "$COLOR_1   | ||  __/ $COLOR_2   | || | | (_| | (__|   <  __/ |\n"
+    printf "$COLOR_1  |___|_|    $COLOR_2   |_||_|  \__,_|\___|_|\_\___|_|\n"
+
+    printf "$COLOR_0 \n  Created by: deadrabbit404\n \n"
+}
+
+print_info() {
+# Print gathered information
+    pad=-13
+    printf "$COLOR_1    %${pad}s $COLOR_0:  $COLOR_2%b\n$COLOR_0" \
+        "IP Address" "$IP"\
+        "Country" "$COUNTRY"\
+        "Region" "$REGION"\
+        "City" "$CITY"\
+        "Latitude" "$LATITUDE"\
+        "Longitude" "$LONGITUDE"\
+        "ISP" "$ISP"\
+        "ASN" "$ASN"\
+        "Country Code" "$COUNTRY_CODE"\
+        "Calling Code" "$CALL_CODE"\
+        "Currency" "$CURRENCY"\
+        "Timezone" "$TZINFO"
+    printf " \n"
+}
+
+menu() {
+    show_banner
+    printf "$COLOR_1  [${COLOR_0}1$COLOR_1] ${COLOR_2}Track my IP address${COLOR_0}\n"
+    printf "$COLOR_1  [${COLOR_0}2$COLOR_1] ${COLOR_2}Track other IP address${COLOR_0}\n"
+    printf "$COLOR_1  [${COLOR_0}0$COLOR_1] ${COLOR_2}Exit${COLOR_0}\n"
+    printf "\n$COLOR_1  [${COLOR_0}?$COLOR_1] ${COLOR_2}Select an option : ${COLOR_0}"
+}
+
+menu_2() {
+    printf "$COLOR_1  [${COLOR_0}r$COLOR_1] ${COLOR_2}Return to main menu$COLOR_0\n"
+    printf "$COLOR_1  [${COLOR_0}q$COLOR_1] ${COLOR_2}Quit${COLOR_0}\n"
+    printf "\n  >>> "
+}
+
+interactive_mode() {
+# Run in interactive mode
+    while :
+    do
+        menu
+        read -r choice
+        case $choice in
+            1)
+                unset ipaddr
+                ;;
+            2)
+                show_banner
+                printf "$COLOR_1  [$COLOR_0?$COLOR_1]$COLOR_2 Enter IP address $COLOR_0: "
+                read -r ipaddr
+                ;;
+            0)
+                exit
+                ;;
+            *)
+                printf "$COLOR_1  [$COLOR_0!$COLOR_1]$COLOR_3 Invalid input $COLOR_0"
+                sleep 1
+                continue
+                ;;
+        esac
+        show_banner
+        track_ip $ipaddr
+        sleep 2
+        menu_2
+        read -r choice
+        case $choice in
+            [rR])
+                ;;
+            [qQ])
+                break
+                ;;
+            *)
+                printf "$COLOR_1  [$COLOR_0!$COLOR_1]$COLOR_3 Invalid input $COLOR_0"
+                sleep 1
+        esac
+    done
+}
+
+track_ip() {
+# Fetch and print ip information
+    INFO=$(curl -s ipwhois.app/json/$1)
+    SUCCESS=$(echo $INFO | grep -o '"success":[^,]*' | cut -f 2 -d: | tr -d '"')
+
+    # Verify if query was successful and print an error if failed
+    if [ "$SUCCESS" = "false" ]; then    
+        MESSAGE=$(echo $INFO | grep -o '"message":[^,]*' | cut -f 2 -d: | tr -d '"}')
+        printf "$COLOR_1  [$COLOR_0!$COLOR_1]$COLOR_3 Error: $MESSAGE\n$COLOR_0 \n"
+        return
+    fi
+
+    IP=$(echo $INFO | grep -o '"ip":[^,]*' | cut -f 2 -d: | tr -d '"')
+    ISP=$(echo $INFO | grep -o '"isp":[^,]*' | cut -f 2 -d: | tr -d '"')
+    ASN=$(echo $INFO | grep -o '"asn":[^,]*' | cut -f 2 -d: | tr -d '"')
+    COUNTRY=$(echo $INFO | grep -o '"country":[^,]*' | cut -f 2 -d: | tr -d '"')
+    REGION=$(echo $INFO | grep -o '"region":[^,]*' | cut -f 2 -d: | tr -d '"')
+    CITY=$(echo $INFO | grep -o '"city":[^,]*' | cut -f 2 -d: | tr -d '"')
+    LATITUDE=$(echo $INFO | grep -o '"latitude":[^,]*' | cut -f 2 -d:)
+    LONGITUDE=$(echo $INFO | grep -o '"longitude":[^,]*' | cut -f 2 -d:)
+    COUNTRY_CODE=$(echo $INFO | grep -o '"country_code":[^,]*' | cut -f 2 -d: | tr -d '"')
+    CALL_CODE=$(echo $INFO | grep -o '"country_phone":[^,]*' | cut -f 2 -d: | tr -d '"')
+    CURRENCY=$(echo $INFO | grep -o '"currency":[^,]*' | cut -f 2 -d: | tr -d '"')
+    CURRENCY_CODE=$(echo $INFO | grep -o '"currency_code":[^,]*' | cut -f 2 -d: | tr -d '"')
+    CURRENCY="${CURRENCY:+$CURRENCY ($CURRENCY_CODE)}"
+    TIMEZONE=$(echo $INFO | grep -o '"timezone":[^,]*' | cut -f 2 -d: | tr -d '"\\')
+    GMT=$(echo $INFO | grep -o '"timezone_gmt":[^,]*' | cut -f 2,3 -d: | tr -d '"')
+    TZINFO="${GMT:+GMT$GMT }$TIMEZONE"
+
+    print_info
+}
+
+# Test if the script was invoke in a tty then run in interactive mode
+if [ -n "$TERM" ]; then
+    # Yellow
+    COLOR_1="\e[1;33m"
+    # Cyan
+    COLOR_2="\e[1;36m"
+    # Red
+    COLOR_3="\e[1;31m"
+    # Default
+    COLOR_0="\e[0m"
+
+    interactive_mode
+
+else
+# TERM variable is unset or empty, this probably means
+# the script is invoke on t-ui, so run in command mode
+    show_banner
+    track_ip $1
+fi

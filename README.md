@@ -24,10 +24,9 @@ iptracker will gather and display the following ip address information:
 * git
 * curl
 
-**Note:** If you're using termux, you can install git and curl by typing:
-```
-apt update && apt install -y git curl
-```
+**Note:** If you're using termux, you can install git and curl by typing:  
+`apt update && apt install -y git curl`
+
 ## Download and Install
 Open a terminal (or termux if on android) and type the commands below.
 * `git clone https://github.com/deadrabbit404/ip-tracker.git`
@@ -47,7 +46,7 @@ You can execute the script on a terminal and it will run in interactive mode (me
 
 **Option 2: Via t-ui launcher**  
 
-On t-ui launcher, there are two aliases created: `myip` and i`ptrack`. Type `myip` - to track your own ip. Type `iptrack ip_address` - to track a different ip.  
+On t-ui launcher, there are two aliases created: `myip` and `iptrack`. Type `myip` - to track your own ip. Type `iptrack ip_address` - to track a different ip.  
 Example: `iptrack 8.8.4.4`
 
 ![screenshot](https://raw.githubusercontent.com/deadrabbit404/ip-tracker/main/images/iptrack_tui.jpg)

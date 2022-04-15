@@ -17,6 +17,7 @@ chmod 755 $progname
 # Install to termux
 if [ -d "$termuxbin" ]; then
     cp -rv $progname $termuxbin && printf ":: Installation successfull\n"
+    chmod 755 $termuxbin/$progname
     sleep 1
 
     # Integrate iptracker with t-ui launcher
